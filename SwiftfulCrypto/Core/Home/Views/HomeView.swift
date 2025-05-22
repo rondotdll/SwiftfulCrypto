@@ -20,6 +20,8 @@ struct HomeView: View {
             VStack{
                 homeHeader
                 
+                StatisticsHeaderView(showPortfolio: $showPortfolio)
+                
                 SearchBarView(searchText: $vm.searchText)
                 
                 coinRowHeaders
