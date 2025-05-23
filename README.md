@@ -1,5 +1,5 @@
 # Simple crypto app made in SwiftUI
-Created as an first step on my journey to learn Swift for a future project (*epic foreshadow!1!!*)
+Created as a first step on my journey to learn Swift for a future project (*epic foreshadow!1!!*)
 
 Thank you to [@SwiftfulThinking](https://github.com/swiftfulthinking) for the awesome free learning materials!
 
