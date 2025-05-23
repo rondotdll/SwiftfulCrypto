@@ -55,8 +55,9 @@ extension PortfolioView {
             LazyHStack(spacing: 10) {
                 ForEach(vm.allCoins) { coin in
                     CoinLogoView(coin: coin)
-                        .frame(width: 65)
+                        .frame(width: 70)
                         .padding(4)
+                        .padding(.vertical, 8)
                         .onTapGesture{
                             withAnimation(.easeInOut(duration: 0.25)) {
                                 selectedCoin = coin
@@ -144,12 +145,16 @@ extension PortfolioView {
         
         withAnimation(.easeInOut) {
             showCheckmark = true
-            removeSelectedCoin()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                withAnimation(.easeOut) {
+                    removeSelectedCoin()
+                }
+            }
         }
         
         UIApplication.shared.endEditing()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             withAnimation(.easeOut) {
                 showCheckmark = false
             }
@@ -159,5 +164,6 @@ extension PortfolioView {
     private func removeSelectedCoin() {
         selectedCoin = nil
         vm.searchText = ""
+        quantityText = ""
     }
 }
