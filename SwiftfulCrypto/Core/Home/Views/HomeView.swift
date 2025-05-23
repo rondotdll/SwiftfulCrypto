@@ -10,17 +10,24 @@ import SwiftUI
 struct HomeView: View {
     
     @EnvironmentObject private var vm: HomeViewModel
-    @State private var showPortfolio: Bool = false
+    @State private var showPortfolio: Bool = false // controls sliding animation
+    @State private var showPortfolioView: Bool = false // controls new sheet visibility
     
     var body: some View {
         ZStack {
             Color.theme.background
                 .ignoresSafeArea()
+                .sheet(isPresented: $showPortfolioView) {
+                    PortfolioView()
+                        .environmentObject(vm)
+                }
             
             VStack{
                 homeHeader
                 
                 StatisticsHeaderView(showPortfolio: $showPortfolio)
+                    .ignoresSafeArea(edges: .horizontal)
+                    .padding(0)
                 
                 SearchBarView(searchText: $vm.searchText)
                 
@@ -98,7 +105,11 @@ extension HomeView {
                 .background(
                     CircleButtonAnimationView(animate: $showPortfolio)
                         .foregroundStyle(Color.theme.accent)
-                )
+                ).onTapGesture {
+                    if showPortfolio {
+                        showPortfolioView.toggle()
+                    }
+                }
     
             Spacer()
             HStack{

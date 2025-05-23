@@ -47,7 +47,7 @@ extension CoinRowView {
         HStack (spacing: 0) {
             Text(String(coin.rank))
                 .font(.caption)
-                .foregroundColor(Color.theme.secondaryText)
+                .foregroundColor(Color.theme.secondaryText.opacity(0.7))
                 .frame(minWidth: 30)
             CoinImageView(coin: self.coin)
                 .frame(width: 30, height: 30)
@@ -72,7 +72,7 @@ extension CoinRowView {
         VStack(alignment: .trailing) {
             Text(coin.currentPrice.asCurrencyWith6Decimals())
                 .bold()
-                .foregroundColor(Color.theme.accent)
+                .foregroundColor(Color.theme.secondaryText)
             Text(coin.priceChangePercentage24H?.asNormalPercentage() ?? "")
                 .foregroundColor(
                     (coin.priceChangePercentage24H ?? 0) >= 0 ?

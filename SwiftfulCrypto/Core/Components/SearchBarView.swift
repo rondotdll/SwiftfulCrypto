@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchBarView: View {
     
+    var placeholder: String = "Search by name or symbol..."
     @Binding var searchText: String
     
     @Environment(\.colorScheme) private var theme
@@ -19,7 +20,7 @@ struct SearchBarView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(isFocused ? Color.theme.accent : Color.theme.secondaryText.opacity(0.4))
             
-            TextField("Search by name or symbol...", text: $searchText)
+            TextField(placeholder, text: $searchText)
                 .autocorrectionDisabled()
                 .focused($isFocused)
                 .overlay(
@@ -39,6 +40,7 @@ struct SearchBarView: View {
         .background(
             RoundedRectangle(cornerRadius: 999)
                 .fill(Color.theme.background)
+                .stroke(isFocused ? Color.theme.accent : Color.clear, lineWidth: 1)
                 .shadow(
                     color: Color.theme.accent.opacity((theme == .dark && isFocused) ? 0.45 : 0.25),
                     radius: 10, x: 0.0, y: 0.0
