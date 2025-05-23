@@ -80,4 +80,56 @@ extension Double {
     func asNormalPercentage() -> String {
         return String(format: "%.2f", self) + "%"
     }
+    
+    /// Converts large numbers into abbreviated strings.
+    /// ```
+    /// Convert 1234 to 1.23K
+    /// Convert 123456 to 123.45K
+    /// Convert 12345678 to 12.34M
+    /// Convert 1234567890 to 1.23Bn
+    /// Convert 123456789012 to 123.45Bn
+    /// Convert 12345678901234 to 12.34Tr
+    func asAbbreviatedNumber() -> String {
+        let num = abs(Double(self))
+        let sign = (self < 0) ? "-" : "" // keep sign on negative values
+        
+        var formatted: Double
+        var suffix: String
+        
+        switch num {
+        // Quintillion
+        case 1_000_000_000_000_000_000...:
+            formatted = num / 1_000_000_000_000_000_000
+            suffix = "Qn"
+            break
+        // Quadrillion
+        case 1_000_000_000_000_000...:
+            formatted = num / 1_000_000_000_000_000
+            suffix = "Qa"
+            break
+        // Trillion
+        case 1_000_000_000_000...:
+            formatted = num / 1_000_000_000_000
+            suffix = "Tr"
+            break
+        // Billion
+        case 1_000_000_000...:
+            formatted = num / 1_000_000_000
+            suffix = "Bn"
+            break
+        // Million
+        case 1_000_000...:
+            formatted = num / 1_000_000
+            suffix = "M"
+            break
+        // Thousand
+        case 1_000...:
+            formatted = num / 1_000
+            suffix = "K"
+        default:
+            return num.asStringWith2Decimals()
+        }
+        
+        return "\(sign)\(formatted.asStringWith2Decimals())\(suffix)"
+    }
 }
