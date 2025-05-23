@@ -16,7 +16,7 @@ struct StatisticsHeaderView: View {
         HStack {
             ForEach(vm.stats) { stat in
                 StatisticView(stat: stat)
-                    .frame(width: UIScreen.screenWidth / 3)
+                    .frame(width: UIScreen.screenWidth / 3, alignment: .center)
             }
         }
         .frame(width: UIScreen.screenWidth,
