@@ -17,6 +17,7 @@ class HomeViewModel: ObservableObject {
     
     private let coinDataService: CoinDataService = CoinDataService()
     private let marketDataService: MarketDataService = MarketDataService()
+    private let portfolioDataService: PortfolioDataService = PortfolioDataService()
     private var cancellables: Set<AnyCancellable> = Set<AnyCancellable>()
     
     init() {
@@ -26,6 +27,7 @@ class HomeViewModel: ObservableObject {
 //            self.portfolioCoins.append(DeveloperPreview.instance.sampleCoin) // Simulate having a portfolio
 //            
 //        }
+        
     }
     
     func addSubscribers() {
@@ -40,12 +42,36 @@ class HomeViewModel: ObservableObject {
             })
             .store(in: &cancellables)
         
+        // updates market data (statistics)
         marketDataService.$marketData
             .map(marketDataParser)
             .sink{ [weak self] (returnedStats) in
                 self?.stats.append(contentsOf: returnedStats)
             }
             .store(in: &cancellables)
+        
+        // updates portfolio contents
+        $allCoins
+            .combineLatest(portfolioDataService.$savedEntities)
+            .map { (coinModels, portfolioEntities) -> [Coin] in
+                coinModels
+                    .compactMap{ (coin) -> Coin? in
+                        guard let entity = portfolioEntities.first(where: { $0.coinID == coin.id })
+                            else {
+                                return nil
+                            }
+                        return coin.updateHoldings(amount: entity.amount)
+                    }
+            }
+            .sink{ [weak self] (returnedCoins) in
+                self?.portfolioCoins = returnedCoins
+            }
+            .store(in: &cancellables)
+            
+    }
+    
+    func updatePortfolio(coin: Coin, amount: Double) {
+        portfolioDataService.updatePortfolio(coin, amount: amount)
     }
     
     private func filterCoins(text: String, coins: [Coin]) -> [Coin] {
