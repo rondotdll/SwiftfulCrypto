@@ -12,9 +12,9 @@ class HomeViewModel: ObservableObject {
     
     @Published var allCoins: [Coin] = []
     @Published var portfolioCoins: [Coin] = []
-    @Published var searchText: String = ""
     @Published var stats: [StatisticModel] = []
-    
+    @Published var searchText: String = ""
+    @Published var sortOption: SortOption = .holdings
     @Published var isLoading: Bool = false
     
     private let coinDataService: CoinDataService = CoinDataService()
@@ -22,13 +22,17 @@ class HomeViewModel: ObservableObject {
     private let portfolioDataService: PortfolioDataService = PortfolioDataService()
     private var cancellables: Set<AnyCancellable> = Set<AnyCancellable>()
     
+    enum SortOption {
+        case none, rank, rankReversed, holdings, holdingsReversed, price, priceReversed
+    }
+    
     init() {
         addSubscribers()
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-//            self.allCoins.append(DeveloperPreview.instance.sampleCoin) // Simulate having a coin
-//            self.portfolioCoins.append(DeveloperPreview.instance.sampleCoin) // Simulate having a portfolio
-//            
-//        }
+        //        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        //            self.allCoins.append(DeveloperPreview.instance.sampleCoin) // Simulate having a coin
+        //            self.portfolioCoins.append(DeveloperPreview.instance.sampleCoin) // Simulate having a portfolio
+        //
+        //        }
         
     }
     
@@ -36,9 +40,9 @@ class HomeViewModel: ObservableObject {
         
         // updates all coins based on search string
         $searchText
-            .combineLatest(coinDataService.$allCoins)
+            .combineLatest(coinDataService.$allCoins, $sortOption)
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main) // latency buffer to prevent CPU overload
-            .map(filterCoins)
+            .map(filterAndSortCoins)
             .sink(receiveValue: { [weak self] (returnedCoins) in
                 self?.allCoins = returnedCoins
             })
@@ -49,10 +53,11 @@ class HomeViewModel: ObservableObject {
             .combineLatest(portfolioDataService.$savedEntities)
             .map(mapCoinsToPorfolioCoins)
             .sink{ [weak self] (returnedCoins) in
-                self?.portfolioCoins = returnedCoins
+                guard let self = self else {return}
+                self.portfolioCoins = self.sortPortfolioCoinsIfNeeded(coins: returnedCoins)
             }
             .store(in: &cancellables)
-            
+        
         // updates market data (statistics)
         marketDataService.$marketData
             .combineLatest($portfolioCoins)
@@ -75,6 +80,40 @@ class HomeViewModel: ObservableObject {
         isLoading = true
         coinDataService.getCoins()
         marketDataService.getMarketData()
+    }
+    
+    private func filterAndSortCoins(text: String, coins: [Coin], sortOption: SortOption) -> [Coin] {
+        var updatedCoins = filterCoins(text: text, coins: coins)
+        sortCoins(sortOption, coins: &updatedCoins)
+        return updatedCoins
+    }
+    
+    private func sortCoins(_ sort: SortOption, coins: inout [Coin]) {
+        switch sort {
+        case .rank:
+            coins.sort(by: {$0.rank < $1.rank})
+        case .rankReversed:
+            coins.sort(by: {$0.rank > $1.rank})
+        case .price:
+            coins.sort(by: {$0.currentPrice > $1.currentPrice})
+        case .priceReversed:
+            coins.sort(by: {$0.currentPrice < $1.currentPrice})
+        default:
+            return
+            
+        }
+    }
+    
+    private func sortPortfolioCoinsIfNeeded(coins: [Coin]) -> [Coin] {
+        // will only sort by holdings or holdingsReversed if needed
+        switch sortOption {
+        case .holdings:
+            return coins.sorted(by: {$0.currentHoldingsConversion > $1.currentHoldingsConversion})
+        case .holdingsReversed:
+            return coins.sorted(by: {$0.currentHoldingsConversion < $1.currentHoldingsConversion})
+        default:
+            return coins;
+        }
     }
     
     private func filterCoins(text: String, coins: [Coin]) -> [Coin] {
