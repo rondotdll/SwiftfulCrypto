@@ -73,6 +73,17 @@ extension HomeView {
             
             Text("Price")
                 .frame(width: (UIScreen.main.bounds.width / 3.5), alignment: .trailing)
+            
+            Button(action: {
+                withAnimation(.easeOut(duration: 2.0)) {
+                    vm.reloadRemoteData()
+                }
+            }, label: {
+                Image(systemName: "arrow.trianglehead.2.clockwise")
+                    .rotationEffect(Angle(degrees: vm.isLoading ? 360 : 0), anchor: .center)
+            })
+            .buttonStyle(.plain)
+            .background(.clear)
         }
         .font(.caption)
         .foregroundStyle(Color.theme.secondaryText)
@@ -86,6 +97,11 @@ extension HomeView {
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 0))
             }
         }
+        .refreshable {
+            withAnimation(.easeOut(duration: 2.0)) {
+                vm.reloadRemoteData()
+            }
+        }
         .listStyle(PlainListStyle())
     }
     
@@ -94,6 +110,11 @@ extension HomeView {
             ForEach(vm.portfolioCoins) { coin in
                 CoinRowView(coin: coin, showHoldingsColumn: true)
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 0))
+            }
+        }
+        .refreshable {
+            withAnimation(.easeOut(duration: 2.0)) {
+                vm.reloadRemoteData()
             }
         }
         .listStyle(PlainListStyle())

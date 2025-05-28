@@ -18,7 +18,7 @@ class MarketDataService {
         getMarketData()
     }
     
-    private func getMarketData() {
+    public func getMarketData() {
         
         let decoder: JSONDecoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase

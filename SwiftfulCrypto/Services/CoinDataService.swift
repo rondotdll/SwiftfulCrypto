@@ -27,7 +27,7 @@ class CoinDataService {
         getCoins()
     }
     
-    private func getCoins() {
+    public func getCoins() {
         
         let decoder: JSONDecoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
