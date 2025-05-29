@@ -27,7 +27,7 @@ struct CoinRowView: View {
         }
         .font(.subheadline)
         .padding(.trailing)
-        .background(Color.theme.background)
+        .background(Color.theme.background.opacity(0.00001))
     }
 }
 
